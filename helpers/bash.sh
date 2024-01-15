@@ -46,8 +46,14 @@ mkcert_installed(){
 
 mkcert_download(){
 	local url=${1:-"https://dl.filippo.io/mkcert/latest?for=$(os_platform)/$(os_architecture)"}
+	local directory=$(dirname $LOCAL_CERT_BINARY)
 
 	if [ -n $LOCAL_CERT_BINARY ]; then
+		# Create directory if it does not exist.
+		if ! [ -d $directory ]; then
+			mkdir -p $directory
+		fi
+
 		if curl -L --output $LOCAL_CERT_BINARY $url; then
 			chmod +x $LOCAL_CERT_BINARY
 			echo $LOCAL_CERT_BINARY
@@ -64,8 +70,7 @@ mkcert_exec(){
 }
 
 mkcert_root_path(){
-	local binary=$1
-	local directory=$(mkcert_exec $binary -CAROOT)
+	local directory=$(mkcert_exec -CAROOT)
 
 	if [ -n $directory ]; then
 		case "$(os_platform)" in
@@ -98,4 +103,4 @@ mkcert_copy(){
 }
 
 export LOCAL_CERT_PATH=${LOCAL_CERT_PATH:-".mkcert"}
-export LOCAL_CERT_BINARY=${LOCAL_CERT_BINARY:-"$mkcert_path/mkcert$(os_binary_extension)"}
+export LOCAL_CERT_BINARY=${LOCAL_CERT_BINARY:-"$LOCAL_CERT_PATH/mkcert$(os_binary_extension)"}
