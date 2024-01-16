@@ -22,10 +22,10 @@ if [ -z "$(localcert_root_path)" ]; then
 	echo -e "\e[1;32m->\e[0m \e[1mInstalling rootCA\e[0m"
 	localcert_exec -install
 	if [ -n "$(localcert_root_path)" ]; then
-		echo -e "   Done"
+		echo -e "\e[1;32m   Done\e[0m"
 		echo -e ""
 	else
-		echo -e "   Skipped (already installed)"
+		echo -e "\e[1;34m   Skipped (already installed)\e[0m"
 		echo -e ""
 	fi
 fi
@@ -41,7 +41,7 @@ if [ -z "$1" ] && [ -z "$2" ]; then
 	exit 0
 fi
 
-echo "-> Generate certificate"
+echo -e "\e[32m->\e[0m \e[1mGenerate certificate\e[0m"
 localcert_generate "$1" "$2"
-echo "   Done"
-echo ""
+echo -e "\e[1;32m   Done\e[0m"
+echo -e ""
