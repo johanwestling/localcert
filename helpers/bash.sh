@@ -86,28 +86,42 @@ localcert_root_path(){
 
 localcert_root_copy(){
 	local source=$(localcert_root_path)
-	local destination=${1:-"$LOCALCERT_CACHE"}
+	local output=${1:-"$LOCALCERT_CACHE"}
 
-	if [ -n "$source" ] && [ -n "$destination" ]; then 
+	if [ -n "$source" ] && [ -n "$output" ]; then 
 		# Create directory if it does not exist.
-		if ! [ -d "$destination" ]; then
-			mkdir -p $destination
+		if ! [ -d "$output" ]; then
+			mkdir -p $output
 		fi
 
 		# Copy files.
-		if \cp $source/* $destination; then 
+		if \cp $source/* $output; then 
 			echo "true"
 		fi
 	fi
 }
 
 localcert_generate(){
-	local name=$1
+	local output=$1
 	local domain=$2
-	local key="$LOCALCERT_CACHE/$name.key"
-	local cert="$LOCALCERT_CACHE/$name.pem"
 
-	if [ -n "$name" ] && [ -n "$domain" ]; then
+	if [ -n "$output" ] && [ -n "$domain" ]; then
+		local name=$(basename "$output")
+		local directory=$(dirname "$output")
+
+		if [[ "$directory" == "." ]]; then
+			directory="./certificates"
+		fi
+
+		local key="$directory/$name.key"
+		local cert="$directory/$name.pem"
+
+		# Create directory if it does not exist.
+		if ! [ -d "$directory" ]; then
+			mkdir -p $directory
+		fi
+
+		# Generate certificate.
 		localcert_exec \
 			--key-file "$key" \
 			--cert-file "$cert" \
