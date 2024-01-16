@@ -27,17 +27,21 @@ else
 	echo ""
 fi
 
-echo "-> Copying rootCA"
-if [ -n "$(localcert_root_copy)" ]; then
+# echo "-> Copying rootCA"
+# if [ -n "$(localcert_root_copy)" ]; then
+# 	echo "   Done"
+# 	echo ""
+# else 
+# 	echo "   Failed"
+# 	echo ""
+# fi
+
+echo "-> Generate certificate"
+if [ -n "$1" ] && [ -n "$2" ]; then
+	localcert_generate "$1" "$2"
 	echo "   Done"
 	echo ""
-else 
-	echo "   Failed"
+else
+	echo "   Skipped (please provide name and url)"
 	echo ""
-	exit 1
 fi
-
-# echo "-> Generate rfsisu certificates"
-# localcert_exec -key-file="certificates/rfsisu-key.pem" -cert-file="certificates/rfsisu.pem" rfsisu.local.aventyret.com "*.rfsisu.local.aventyret.com"
-# echo "   Done"
-# echo ""

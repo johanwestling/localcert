@@ -101,5 +101,19 @@ localcert_root_copy(){
 	fi
 }
 
+localcert_generate(){
+	local name=$1
+	local domain=$2
+	local key="$LOCALCERT_CACHE/$name.key"
+	local cert="$LOCALCERT_CACHE/$name.pem"
+
+	if [ -n "$name" ] && [ -n "$domain" ]; then
+		localcert_exec \
+			--key-file "$key" \
+			--cert-file "$cert" \
+			$domain "*.$domain" ::1
+	fi
+}
+
 export LOCALCERT_CACHE=${LOCALCERT_CACHE:-".cache"}
 export LOCALCERT_BINARY=${LOCALCERT_BINARY:-"$LOCALCERT_CACHE/mkcert$(os_binary_extension)"}
