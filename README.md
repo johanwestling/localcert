@@ -5,7 +5,7 @@ Utility scripts for automating installation of rootCA and domain specific certif
 1. Generate certificate:
 
 	```bash
-	./localcert "certificate-name" "*.yourdomain.tld"
+	./localcert "yourdomain.tld"
 	```
 
 	> **Note**<br>

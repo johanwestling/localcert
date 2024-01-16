@@ -1,38 +1,43 @@
 #!/bin/bash
 source .localcert/bash.sh
 
-echo ""
-echo "Localcert"
-echo "========="
-echo ""
+echo -e ""
+echo -e "\e[1mLocalcert\e[0m"
+echo -e "\e[32m---------\e[0m"
+echo -e ""
 
 if [ -z "$(localcert_installed)" ]; then
-	echo "-> Downloading mkcert"
+	echo -e "\e[32m->\e[0m \e[1mDownloading mkcert\e[0m"
 	if [ -n "$(localcert_download)" ]; then
-		echo "   Done"
-		echo ""
+		echo -e "\e[1;32m   Done\e[0m"
+		echo -e ""
 	else
-		echo "   Failed"
-		echo ""
+		echo -e "\e[1;31m   Failed\e[0m"
+		echo -e ""
 		exit 1
 	fi
 fi
 
 if [ -z "$(localcert_root_path)" ]; then
-	echo "-> Installing rootCA"
+	echo -e "\e[1;32m->\e[0m \e[1mInstalling rootCA\e[0m"
 	localcert_exec -install
 	if [ -n "$(localcert_root_path)" ]; then
-		echo "   Done"
-		echo ""
+		echo -e "   Done"
+		echo -e ""
 	else
-		echo "   Skipped (already installed)"
-		echo ""
+		echo -e "   Skipped (already installed)"
+		echo -e ""
 	fi
 fi
 
 if [ -z "$1" ] && [ -z "$2" ]; then
-	echo "Usage:	localcert <certname> <domain.tld>"
-	echo ""
+	echo -e "\e[32m->\e[0m \e[1mUsage instructions:\e[0m"
+	echo -e ""
+	echo -e "   \e[1m./localcert\e[0m \e[2m<domain> <path>\e[0m"
+	echo -e ""
+	echo -e " \e[32m$\e[0m localcert local.example.com ./"
+	echo -e " \e[2m  Generates a certificate for local.example.com in the current directory.\e[0m"
+	echo -e ""
 	exit 0
 fi
 

@@ -54,7 +54,7 @@ localcert_download(){
 			mkdir -p $directory
 		fi
 
-		if curl -L --output $LOCALCERT_BINARY $url; then
+		if curl -L --silent --output $LOCALCERT_BINARY $url; then
 			chmod +x $LOCALCERT_BINARY && echo $LOCALCERT_BINARY
 		fi
 	fi
@@ -102,23 +102,17 @@ localcert_root_copy(){
 }
 
 localcert_generate(){
-	local output=$1
-	local domain=$2
+	local domain=$1
+	local output=${2:-".localcert/certificates"}
 
-	if [ -n "$output" ] && [ -n "$domain" ]; then
-		local name=$(basename "$output")
-		local directory=$(dirname "$output")
-
-		if [[ "$directory" == "." ]]; then
-			directory=".localcert/certificates"
-		fi
-
-		local key="$directory/$name.key"
-		local cert="$directory/$name.pem"
+	if [ -n "$domain" ]; then
+		local name=$(echo "$domain" | iconv -t ascii//TRANSLIT | sed -E -e 's/[^[:alnum:]]+/-/g' -e 's/^-+|-+$//g' | tr '[:upper:]' '[:lower:]')
+		local key="$output/$name.key"
+		local cert="$output/$name.pem"
 
 		# Create directory if it does not exist.
-		if ! [ -d "$directory" ]; then
-			mkdir -p $directory
+		if ! [ -d "$output" ]; then
+			mkdir -p $output
 		fi
 
 		# Generate certificate.
