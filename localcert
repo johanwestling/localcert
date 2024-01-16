@@ -26,15 +26,6 @@ if [ -z "$(localcert_root_path)" ]; then
 	fi
 fi
 
-# echo "-> Copying rootCA"
-# if [ -n "$(localcert_root_copy)" ]; then
-# 	echo "   Done"
-# 	echo ""
-# else 
-# 	echo "   Failed"
-# 	echo ""
-# fi
-
 if [ -z "$1" ] && [ -z "$2" ]; then
 	echo "Usage"
 	echo "====="
