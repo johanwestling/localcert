@@ -2,8 +2,8 @@
 source ./helpers/bash.sh
 echo ""
 
-echo "-> Downloading mkcert"
 if [ -z "$(localcert_installed)" ]; then
+	echo "-> Downloading mkcert"
 	if [ -n "$(localcert_download)" ]; then
 		echo "   Done"
 		echo ""
@@ -12,19 +12,18 @@ if [ -z "$(localcert_installed)" ]; then
 		echo ""
 		exit 1
 	fi
-else
-	echo "   Skipped (already downloaded)"
-	echo ""
 fi
 
-echo "-> Installing rootCA"
 if [ -z "$(localcert_root_path)" ]; then
+	echo "-> Installing rootCA"
 	localcert_exec -install
-	echo "   Done"
-	echo ""
-else
-	echo "   Skipped (already installed)"
-	echo ""
+	if [ -n "$(localcert_root_path)" ]; then
+		echo "   Done"
+		echo ""
+	else
+		echo "   Skipped (already installed)"
+		echo ""
+	fi
 fi
 
 # echo "-> Copying rootCA"
@@ -36,12 +35,16 @@ fi
 # 	echo ""
 # fi
 
-echo "-> Generate certificate"
-if [ -n "$1" ] && [ -n "$2" ]; then
-	localcert_generate "$1" "$2"
-	echo "   Done"
+if [ -z "$1" ] && [ -z "$2" ]; then
+	echo "Usage"
+	echo "====="
 	echo ""
-else
-	echo "   Skipped (please provide name and url)"
+	echo "localcert <certname> <domain.tld>"
 	echo ""
+	exit 0
 fi
+
+echo "-> Generate certificate"
+localcert_generate "$1" "$2"
+echo "   Done"
+echo ""
