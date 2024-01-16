@@ -1,5 +1,9 @@
 #!/bin/bash
-source ./helpers/bash.sh
+source .localcert/bash.sh
+
+echo ""
+echo "Localcert"
+echo "========="
 echo ""
 
 if [ -z "$(localcert_installed)" ]; then
@@ -27,10 +31,7 @@ if [ -z "$(localcert_root_path)" ]; then
 fi
 
 if [ -z "$1" ] && [ -z "$2" ]; then
-	echo "Usage"
-	echo "====="
-	echo ""
-	echo "localcert <certname> <domain.tld>"
+	echo "Usage:	localcert <certname> <domain.tld>"
 	echo ""
 	exit 0
 fi

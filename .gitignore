@@ -1,2 +1,2 @@
-.cache/
-certificates/
+.localcert/cache/
+.localcert/certificates/

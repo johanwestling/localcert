@@ -110,7 +110,7 @@ localcert_generate(){
 		local directory=$(dirname "$output")
 
 		if [[ "$directory" == "." ]]; then
-			directory="./certificates"
+			directory=".localcert/certificates"
 		fi
 
 		local key="$directory/$name.key"
@@ -129,5 +129,5 @@ localcert_generate(){
 	fi
 }
 
-export LOCALCERT_CACHE=${LOCALCERT_CACHE:-".cache"}
+export LOCALCERT_CACHE=${LOCALCERT_CACHE:-".localcert/cache"}
 export LOCALCERT_BINARY=${LOCALCERT_BINARY:-"$LOCALCERT_CACHE/mkcert$(os_binary_extension)"}
