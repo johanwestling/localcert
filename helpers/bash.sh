@@ -1,106 +1,105 @@
 os_platform(){
-	case $(uname -sr | tr '[:upper:]' '[:lower:]') in
+	case "$(uname -sr | tr '[:upper:]' '[:lower:]')" in
 		*darwin*)
-			echo 'darwin'
+			echo "darwin"
 		;;
 
 		*linux*microsoft*)
-			echo 'windows'
+			echo "windows"
 		;;
 
 		*linux*)
-			echo 'linux'
+			echo "linux"
 		;;
 	esac
 }
 
 os_architecture(){
-	case $(uname -m) in
+	case "$(uname -m)" in
 		arm64|aarch64*|armv*)
-			echo 'arm64'
+			echo "arm64"
 		;;
 		
 		arm)
-			echo 'arm'
+			echo "arm"
 		;;
 		
 		*)
-			echo 'amd64'
+			echo "amd64"
 		;;
 	esac
 }
 
 os_binary_extension(){
-	case $(os_platform) in
+	case "$(os_platform)" in
 		windows)
-			echo '.exe'
+			echo ".exe"
 		;;
 	esac
 }
 
-mkcert_installed(){
-	if [ -n $LOCAL_CERT_BINARY ] && [ -f $LOCAL_CERT_BINARY ]; then
-		echo $LOCAL_CERT_BINARY
+localcert_installed(){
+	if [ -n "$LOCALCERT_BINARY" ] && [ -f "$LOCALCERT_BINARY" ]; then
+		echo "$LOCALCERT_BINARY"
 	fi
 }
 
-mkcert_download(){
+localcert_download(){
 	local url=${1:-"https://dl.filippo.io/mkcert/latest?for=$(os_platform)/$(os_architecture)"}
-	local directory=$(dirname $LOCAL_CERT_BINARY)
+	local directory=$(dirname "$LOCALCERT_BINARY")
 
-	if [ -n $LOCAL_CERT_BINARY ]; then
+	if [ -n "$LOCALCERT_BINARY" ]; then
 		# Create directory if it does not exist.
-		if ! [ -d $directory ]; then
+		if ! [ -d "$directory" ]; then
 			mkdir -p $directory
 		fi
 
-		if curl -L --output $LOCAL_CERT_BINARY $url; then
-			chmod +x $LOCAL_CERT_BINARY
-			echo $LOCAL_CERT_BINARY
+		if curl -L --output $LOCALCERT_BINARY $url; then
+			chmod +x $LOCALCERT_BINARY && echo $LOCALCERT_BINARY
 		fi
 	fi
 }
 
-mkcert_exec(){
-	local binary=$([ -n $LOCAL_CERT_BINARY ] && echo "./$LOCAL_CERT_BINARY"); shift
+localcert_exec(){
+	local binary=$([ -n "$LOCALCERT_BINARY" ] && echo "./$LOCALCERT_BINARY")
 
-	if [ -n $binary ] && [ -f $binary ]; then
-		./$binary $@
+	if [ -n "$binary" ] && [ -f "$binary" ]; then
+		$binary $@
 	fi
 }
 
-mkcert_root_path(){
-	local directory=$(mkcert_exec -CAROOT)
+localcert_root_path(){
+	local directory=$(localcert_exec -CAROOT)
 
-	if [ -n $directory ]; then
+	if [ -n "$directory" ]; then
 		case "$(os_platform)" in
 			windows)
-				echo $(wslpath $directory)
+				echo $(wslpath "$directory")
 			;;
 
 			*)
-				echo $directory
+				echo "$directory"
 			;;
 		esac
 	fi
 }
 
-mkcert_copy(){
-	local from=$1
-	local to=$2
+localcert_root_copy(){
+	local source=$(localcert_root_path)
+	local destination=${1:-"$LOCALCERT_CACHE"}
 
-	if [ -n $from ] && [ -n $to ]; then 
+	if [ -n "$source" ] && [ -n "$destination" ]; then 
 		# Create directory if it does not exist.
-		if ! [ -d $to ]; then
-			mkdir -p $to
+		if ! [ -d "$destination" ]; then
+			mkdir -p $destination
 		fi
 
 		# Copy files.
-		if \cp $from/*.pem $to; then 
-			echo true
+		if \cp $source/* $destination; then 
+			echo "true"
 		fi
 	fi
 }
 
-export LOCAL_CERT_PATH=${LOCAL_CERT_PATH:-".mkcert"}
-export LOCAL_CERT_BINARY=${LOCAL_CERT_BINARY:-"$LOCAL_CERT_PATH/mkcert$(os_binary_extension)"}
+export LOCALCERT_CACHE=${LOCALCERT_CACHE:-".cache"}
+export LOCALCERT_BINARY=${LOCALCERT_BINARY:-"$LOCALCERT_CACHE/mkcert$(os_binary_extension)"}

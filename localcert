@@ -1,17 +1,10 @@
 #!/bin/bash
-. ./helpers/bash.sh
-
-mkcert_path=".mkcert"
-mkcert_bin="$mkcert_path/mkcert$(os_binary_extension)"
-
-echo ""
-echo "Localcert"
-echo "========="
+source ./helpers/bash.sh
 echo ""
 
-if [ -z $(mkcert_installed) ]; then
-	echo "-> Downloading $LOCAL_CERT_BINARY"
-	if [ -n $(mkcert_download) ]; then
+echo "-> Downloading mkcert"
+if [ -z "$(localcert_installed)" ]; then
+	if [ -n "$(localcert_download)" ]; then
 		echo "   Done"
 		echo ""
 	else
@@ -19,37 +12,32 @@ if [ -z $(mkcert_installed) ]; then
 		echo ""
 		exit 1
 	fi
+else
+	echo "   Skipped (already downloaded)"
+	echo ""
 fi
 
-for arg in "$@"; do
-	case $arg in
-		"--install")
-			echo "-> Installing rootCA"
-			mkcert_exec -install
-			echo "   Done"
-			echo ""
-		;;
-	esac
-done
+echo "-> Installing rootCA"
+if [ -z "$(localcert_root_path)" ]; then
+	localcert_exec -install
+	echo "   Done"
+	echo ""
+else
+	echo "   Skipped (already installed)"
+	echo ""
+fi
 
-
-# echo "-> Installing rootCA"
-# mkcert_exec $mkcert_bin \
-# 	-install
-# echo "   Done"
-# echo ""
-
-# echo "-> Copying rootCA"
-# if [ -n $(mkcert_copy $(mkcert_root_path $mkcert_bin) $mkcert_path/certificates/) ]; then
-# 	echo "   Done"
-# 	echo ""
-# else 
-# 	echo "   Failed"
-# 	echo ""
-# 	exit 1
-# fi
+echo "-> Copying rootCA"
+if [ -n "$(localcert_root_copy)" ]; then
+	echo "   Done"
+	echo ""
+else 
+	echo "   Failed"
+	echo ""
+	exit 1
+fi
 
 # echo "-> Generate rfsisu certificates"
-# mkcert_exec $mkcert_bin -key-file="$mkcert_path/certificates/rfsisu-key.pem" -cert-file="$mkcert_path/certificates/rfsisu.pem" rfsisu.local.aventyret.com "*.rfsisu.local.aventyret.com"
+# localcert_exec -key-file="certificates/rfsisu-key.pem" -cert-file="certificates/rfsisu.pem" rfsisu.local.aventyret.com "*.rfsisu.local.aventyret.com"
 # echo "   Done"
 # echo ""
