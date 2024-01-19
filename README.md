@@ -1,14 +1,3 @@
 # Localcert
 
-Utility scripts for automating installation of rootCA and domain specific certificates for Windows, Mac and Linux.
-
-1. Generate certificate:
-
-	```bash
-	./localcert "yourdomain.tld"
-	```
-
-	> **Note**<br>
-	> Find the generated certificates in `certificates` directory.
-
-1. **Done**
+This is a utility script for automating the set up of a machine-specific certificate that for development servers that need to serve on a custom domain with https.
