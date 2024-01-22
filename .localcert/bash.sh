@@ -1,7 +1,9 @@
-os_platform(){
-	case "$(uname -sr | tr '[:upper:]' '[:lower:]')" in
+localcert_machine_platform(){
+	local platform=$(uname -sr | tr '[:upper:]' '[:lower:]')
+
+	case "$platform" in
 		*darwin*)
-			echo "darwin"
+			echo "mac"
 		;;
 
 		*linux*microsoft*)
@@ -14,8 +16,10 @@ os_platform(){
 	esac
 }
 
-os_architecture(){
-	case "$(uname -m)" in
+localcert_machine_architecture(){
+	local architecture=$(uname -m)
+
+	case "$architecture" in
 		arm64|aarch64*|armv*)
 			echo "arm64"
 		;;
@@ -30,49 +34,72 @@ os_architecture(){
 	esac
 }
 
-os_binary_extension(){
-	case "$(os_platform)" in
+localcert_bin_platform(){
+	local platform=$(localcert_machine_platform)
+
+	case "$platform" in
+		mac)
+			echo "darwin"
+		;;
+		
+		*)
+			echo "$platform"
+		;;
+	esac
+}
+
+localcert_bin_extension(){
+	local platform=$(localcert_machine_platform)
+
+	case "$platform" in
 		windows)
 			echo ".exe"
 		;;
 	esac
 }
 
-localcert_installed(){
-	if [ -n "$LOCALCERT_BINARY" ] && [ -f "$LOCALCERT_BINARY" ]; then
-		echo "$LOCALCERT_BINARY"
+localcert_bin_path(){
+	if [ -n "$LOCALCERT_BIN" ] && [ -f "$LOCALCERT_BIN" ]; then
+		echo "$LOCALCERT_BIN"
 	fi
 }
 
-localcert_download(){
-	local url=${1:-"https://dl.filippo.io/mkcert/latest?for=$(os_platform)/$(os_architecture)"}
-	local directory=$(dirname "$LOCALCERT_BINARY")
+localcert_bin_install(){
+	local binary=$LOCALCERT_BIN
+	local platform=$(localcert_bin_platform)
+	local architecture=$(localcert_machine_architecture)
+	local url=${1:-"https://dl.filippo.io/mkcert/latest?for=$platform/$architecture"}
+	local directory=$([ -n "$binary" ] && dirname "$binary")
 
-	if [ -n "$LOCALCERT_BINARY" ]; then
-		# Create directory if it does not exist.
-		if ! [ -d "$directory" ]; then
-			mkdir -p "$directory"
-		fi
+	# Create directory (if it does not exist).
+	if [ -n "$directory" ] && ! [ -d "$directory" ]; then
+		mkdir -p "$directory" > /dev/null 2>&1
+	fi
 
-		if curl -L --silent --output "$LOCALCERT_BINARY" "$url"; then
-			chmod +x "$LOCALCERT_BINARY" && echo "$LOCALCERT_BINARY"
-		fi
+	# Install mkcert binary.
+	if [ -n "$binary" ]; then
+		curl -L --silent --output "$binary" "$url" > /dev/null 2>&1 \
+			&& chmod +x "$binary" > /dev/null 2>&1 \
+			&& echo "$binary"
 	fi
 }
 
-localcert_exec(){
-	local binary=$([ -n "$LOCALCERT_BINARY" ] && echo "./$LOCALCERT_BINARY")
 
-	if [ -n "$binary" ] && [ -f "$binary" ]; then
-		$binary $@
+localcert_bin(){
+	local binary=$(localcert_bin_path)
+	local executable=$([ -n "$binary" ] && echo "./$binary")
+
+	if [ -n "$executable" ] && [ -f "$executable" ]; then
+		$executable $@
 	fi
 }
 
 localcert_root_path(){
-	local directory=$(localcert_exec -CAROOT)
+	local platform=$(localcert_machine_platform)
+	local directory=$(localcert_bin -CAROOT)
 
 	if [ -n "$directory" ]; then
-		case "$(os_platform)" in
+		case "$platform" in
 			windows)
 				echo "$(wslpath "$directory")"
 			;;
@@ -84,26 +111,60 @@ localcert_root_path(){
 	fi
 }
 
+localcert_root_install(){
+	localcert_bin -install > /dev/null 2>&1
+	
+	if [ $? == 0 ]; then
+		local platform=$(localcert_machine_platform)
+		local directory=$(localcert_root_path)
+		local certificate="$directory/rootCA.pem"
+		
+		if [ -f "$certificate" ]; then
+			case "$platform" in
+				mac)
+					# Check if certificate is trusted.
+					security verify-cert -c "$certificate" > /dev/null 2>&1 && echo "$certificate"
+
+					# Elevate to trust certificate (if it is not already trusted).
+					if [ $? != 0 ]; then
+						sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$certificate" && echo "$certificate"
+					fi
+				;;
+
+				linux)
+					# Update certificates in Linux system.
+					update-ca-certificates && echo "$certificate"
+				;;
+
+				*)	
+					echo "$certificate"
+				;;
+			esac
+		fi
+	fi
+}
+
 localcert_root_copy(){
-	local source=$(localcert_root_path)
-	local output=${1:-"$LOCALCERT_CERTIFICATES"}
+	local from=$(localcert_root_path)
+	local name="rootCA"
+	local directory=${1:-"$LOCALCERT_OUTPUT"}
 
-	if [ -n "$source" ] && [ -n "$output" ]; then 
-		# Create directory if it does not exist.
-		if ! [ -d "$output" ]; then
-			mkdir -p "$output"
+	if [ -n "$from" ] && [ -n "$directory" ]; then 
+		# Create directory (if it does not exist).
+		if ! [ -d "$directory" ]; then
+			mkdir -p "$directory" > /dev/null 2>&1
 		fi
 
-		# Copy files.
-		if \cp "$source/rootCA.pem" "$output/rootCA.crt" && \cp "$source/rootCA-key.pem" "$output/rootCA.key"; then 
-			echo "true"
-		fi
+		# Copy root certificate.
+		\cp "$from/$name.pem" "$directory/$name.crt" \
+			&& \cp "$from/$name-key.pem" "$directory/$name.key" \
+			&& echo "true"
 	fi
 }
 
 localcert_generate(){
 	local name=$([[ "$1" == */* ]] && basename "$1" || echo "$1")
-	local directory=$([[ "$1" == */* ]] && dirname "$1" || echo "$LOCALCERT_CERTIFICATES")
+	local directory=$([[ "$1" == */* ]] && dirname "$1" || echo "$LOCALCERT_OUTPUT")
 	shift
 	local domains=$@
 
@@ -113,17 +174,18 @@ localcert_generate(){
 
 		# Create directory if it does not exist.
 		if [ -n "$directory" ] && ! [ -d "$directory" ]; then
-			mkdir -p "$directory"
+			mkdir -p "$directory" > /dev/null 2>&1
 		fi
 
-		# Copy root certificate.
-		localcert_root_copy "$directory" > /dev/null
-
 		# Generate certificate for domains.
-		localcert_exec \
+		localcert_bin \
 			--key-file "$key" \
 			--cert-file "$cert" \
-			$domains
+			$domains > /dev/null 2>&1
+
+		if [ $? == 0 ]; then
+			echo "true"
+		fi
 	fi
 }
 
@@ -139,6 +201,6 @@ localcert_help()
 	echo
 }
 
-export LOCALCERT_CERTIFICATES=${LOCALCERT_CERTIFICATES:-".certificates"}
+export LOCALCERT_OUTPUT=${LOCALCERT_OUTPUT:-".certificates"}
 export LOCALCERT_CACHE=${LOCALCERT_CACHE:-".localcert/cache"}
-export LOCALCERT_BINARY=${LOCALCERT_BINARY:-"$LOCALCERT_CACHE/mkcert$(os_binary_extension)"}
+export LOCALCERT_BIN=${LOCALCERT_BIN:-"$LOCALCERT_CACHE/mkcert$(localcert_bin_extension)"}
