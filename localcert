@@ -38,8 +38,8 @@ if [ -z "$cert_name" ]; then
 	exit 0
 fi
 
-echo -e "\033[32m->\033[0m \033[1mGenerate certificate\033[0m"
-if [ -z "$(localcert_root_copy)" ]; then
+echo -e "\033[32m->\033[0m \033[1mCopying rootCA\033[0m"
+if [ -n "$(localcert_root_copy)" ]; then
 	echo -e "\033[1;32m   Done\033[0m"
 	echo -e ""
 else
@@ -48,8 +48,8 @@ else
 	exit 1
 fi
 
-echo -e "\033[32m->\033[0m \033[1mGenerate certificate\033[0m"
-if [ -z "$(localcert_generate $cert_name $cert_domains)" ]; then
+echo -e "\033[32m->\033[0m \033[1mGenerating certificate\033[0m"
+if [ -n "$(localcert_generate $cert_name $cert_domains)" ]; then
 	echo -e "\033[1;32m   Done\033[0m"
 	echo -e ""
 else
