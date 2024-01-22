@@ -80,9 +80,14 @@ localcert_root_install(){
 			if [ -f $cert ]; then
 				security verify-cert -c "$directory/rootCA.pem" > /dev/null 2>&1
 				if [ $? != 0 ]; then
-						security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$directory/rootCA.pem"
+					security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$directory/rootCA.pem"
+					echo "$cert"
 				fi 
 			fi
+		;;
+
+		*)
+			echo "$cert"
 		;;
 	esac
 }
