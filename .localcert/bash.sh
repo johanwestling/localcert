@@ -68,8 +68,8 @@ localcert_bin_path(){
 
 localcert_bin_install(){
 	local binary=$(localcert_bin_path)
-	local platform=$(os_platform)
-	local architecture=$(os_architecture)
+	local platform=$(localcert_bin_platform)
+	local architecture=$(localcert_machine_architecture)
 	local url=${1:-"https://dl.filippo.io/mkcert/latest?for=$platform/$architecture"}
 	local directory=$([ -n "$binary" ] && dirname "$binary")
 
