@@ -23,7 +23,7 @@ fi
 
 if [ -z "$(localcert_root_path)" ]; then
 	echo -e "\033[1;32m->\033[0m \033[1mInstalling rootCA\033[0m"
-	localcert_exec -install
+	localcert_root_install
 	if [ -n "$(localcert_root_path)" ]; then
 		echo -e "\033[1;32m   Done\033[0m"
 		echo -e ""

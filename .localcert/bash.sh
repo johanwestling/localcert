@@ -1,7 +1,7 @@
 os_platform(){
 	case "$(uname -sr | tr '[:upper:]' '[:lower:]')" in
 		*darwin*)
-			echo "darwin"
+			echo "mac"
 		;;
 
 		*linux*microsoft*)
@@ -66,6 +66,25 @@ localcert_exec(){
 	if [ -n "$binary" ] && [ -f "$binary" ]; then
 		$binary $@
 	fi
+}
+
+localcert_root_install(){
+	localcert_exec -install
+
+	local directory=$(localcert_root_path)
+	local cert="$directory/rootCA.pem"
+
+	case "$(os_platform)" in
+		mac)
+			# Add the certificate to the macos trust store
+			if [ -f $cert ]; then
+				security verify-cert -c "$directory/rootCA.pem" > /dev/null 2>&1
+				if [ $? != 0 ]; then
+						security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$directory/rootCA.pem"
+				fi 
+			fi
+		;;
+	esac
 }
 
 localcert_root_path(){
