@@ -9,9 +9,9 @@ echo -e "\033[1mLocalcert\033[0m"
 echo -e "\033[32m---------\033[0m"
 echo -e ""
 
-if [ -z "$(localcert_installed)" ]; then
+if [ -z "$(localcert_bin_path)" ]; then
 	echo -e "\033[32m->\033[0m \033[1mDownloading mkcert\033[0m"
-	if [ -n "$(localcert_download)" ]; then
+	if [ -n "$(localcert_bin_install)" ]; then
 		echo -e "\033[1;32m   Done\033[0m"
 		echo -e ""
 	else
@@ -27,8 +27,9 @@ if [ -z "$(localcert_root_path)" ]; then
 		echo -e "\033[1;32m   Done\033[0m"
 		echo -e ""
 	else
-		echo -e "\033[1;34m   Skipped (already installed)\033[0m"
+		echo -e "\033[1;31m   Failed\033[0m"
 		echo -e ""
+		exit 1
 	fi
 fi
 
@@ -38,6 +39,21 @@ if [ -z "$cert_name" ]; then
 fi
 
 echo -e "\033[32m->\033[0m \033[1mGenerate certificate\033[0m"
-localcert_generate $cert_name $cert_domains
-echo -e "\033[1;32m   Done\033[0m"
-echo -e ""
+if [ -z "$(localcert_root_copy)" ]; then
+	echo -e "\033[1;32m   Done\033[0m"
+	echo -e ""
+else
+	echo -e "\033[1;31m   Failed\033[0m"
+	echo -e ""
+	exit 1
+fi
+
+echo -e "\033[32m->\033[0m \033[1mGenerate certificate\033[0m"
+if [ -z "$(localcert_generate $cert_name $cert_domains)" ]; then
+	echo -e "\033[1;32m   Done\033[0m"
+	echo -e ""
+else
+	echo -e "\033[1;31m   Failed\033[0m"
+	echo -e ""
+	exit 1
+fi
