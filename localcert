@@ -21,6 +21,8 @@ if [ -z "$(localcert_bin_path)" ]; then
 	fi
 fi
 
+exit 1
+
 if [ -z "$(localcert_root_path)" ]; then
 	echo -e "\033[1;32m->\033[0m \033[1mInstalling rootCA\033[0m"
 	if [ -n "$(localcert_root_install)" ]; then

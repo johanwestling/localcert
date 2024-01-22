@@ -59,15 +59,13 @@ localcert_bin_extension(){
 }
 
 localcert_bin_path(){
-	local binary=${LOCALCERT_BIN:-"$LOCALCERT_CACHE/mkcert$(localcert_bin_extension)"}
-
-	if [ -n "$binary" ] && [ -f "$binary" ]; then
-		echo "$binary"
+	if [ -n "$LOCALCERT_BIN" ] && [ -f "$LOCALCERT_BIN" ]; then
+		echo "$LOCALCERT_BIN"
 	fi
 }
 
 localcert_bin_install(){
-	local binary=$(localcert_bin_path)
+	local binary=$LOCALCERT_BIN
 	local platform=$(localcert_bin_platform)
 	local architecture=$(localcert_machine_architecture)
 	local url=${1:-"https://dl.filippo.io/mkcert/latest?for=$platform/$architecture"}
@@ -75,13 +73,13 @@ localcert_bin_install(){
 
 	# Create directory (if it does not exist).
 	if [ -n "$directory" ] && ! [ -d "$directory" ]; then
-		mkdir -p "$directory" > "$LOCALCERT_OUTPUT/localcert.log" 2>&1
+		mkdir -p "$directory" > /dev/null 2>&1
 	fi
 
 	# Install mkcert binary.
 	if [ -n "$binary" ]; then
-		curl -L --silent --output "$binary" "$url" \
-			&& chmod +x "$binary" > "$LOCALCERT_OUTPUT/localcert.log" 2>&1 \
+		curl -L --silent --output "$binary" "$url" > /dev/null 2>&1 \
+			&& chmod +x "$binary" > /dev/null 2>&1 \
 			&& echo "$binary"
 	fi
 }
@@ -114,7 +112,7 @@ localcert_root_path(){
 }
 
 localcert_root_install(){
-	localcert_bin -install > "$LOCALCERT_OUTPUT/localcert.log" 2>&1
+	localcert_bin -install > /dev/null 2>&1
 	
 	if [ $? == 0 ]; then
 		local platform=$(localcert_machine_platform)
@@ -125,7 +123,7 @@ localcert_root_install(){
 			case "$platform" in
 				mac)
 					# Check if certificate is trusted.
-					security verify-cert -c "$certificate" > "$LOCALCERT_OUTPUT/localcert.log" 2>&1 && echo "$certificate"
+					security verify-cert -c "$certificate" > /dev/null 2>&1 && echo "$certificate"
 
 					# Trust certificate (if it is not already trusted).
 					if [ $? != 0 ]; then
@@ -154,7 +152,7 @@ localcert_root_copy(){
 	if [ -n "$from" ] && [ -n "$directory" ]; then 
 		# Create directory (if it does not exist).
 		if ! [ -d "$directory" ]; then
-			mkdir -p "$directory" > "$LOCALCERT_OUTPUT/localcert.log" 2>&1
+			mkdir -p "$directory" > /dev/null 2>&1
 		fi
 
 		# Copy root certificate.
@@ -176,14 +174,14 @@ localcert_generate(){
 
 		# Create directory if it does not exist.
 		if [ -n "$directory" ] && ! [ -d "$directory" ]; then
-			mkdir -p "$directory" > "$LOCALCERT_OUTPUT/localcert.log" 2>&1
+			mkdir -p "$directory" > /dev/null 2>&1
 		fi
 
 		# Generate certificate for domains.
 		localcert_bin \
 			--key-file "$key" \
 			--cert-file "$cert" \
-			$domains > "$LOCALCERT_OUTPUT/localcert.log" 2>&1
+			$domains > /dev/null 2>&1
 
 		if [ $? == 0 ]; then
 			echo "true"
@@ -203,5 +201,6 @@ localcert_help()
 	echo
 }
 
-export LOCALCERT_CACHE=${LOCALCERT_CACHE:-".localcert/cache"}
 export LOCALCERT_OUTPUT=${LOCALCERT_OUTPUT:-".certificates"}
+export LOCALCERT_CACHE=${LOCALCERT_CACHE:-".localcert/cache"}
+export LOCALCERT_BIN=${LOCALCERT_BIN:-"$LOCALCERT_CACHE/mkcert$(localcert_bin_extension)"}
