@@ -125,7 +125,7 @@ localcert_root_install(){
 					# Check if certificate is trusted.
 					security verify-cert -c "$certificate" > /dev/null 2>&1 && echo "$certificate"
 
-					# Trust certificate (if it is not already trusted).
+					# Elevate to trust certificate (if it is not already trusted).
 					if [ $? != 0 ]; then
 						sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$certificate" && echo "$certificate"
 					fi
