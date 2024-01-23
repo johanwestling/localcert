@@ -10,10 +10,16 @@ For a browser to see a connection to a container secure we will need a `rootCA` 
 
 ## Usage
 
+1. Download latest `localcert`:
+	
+	```bash
+	curl -fsSL -o localcert https://raw.githubusercontent.com/johanwestling/localcert/HEAD/localcert)
+	```
+
 **Generate certificates:**
 ```bash
 ./localcert my-certificate-name my.domain.dev "*.my.domain.dev"
 ```
 
 > [!IMPORTANT]
-> `MacOS` this prompt for your account password when reaching the  installation of generated `rootCA` as the `Keychain` do not allow it to be added without `sudo`.
+> In `MacOS` and `Linux` you will be prompted for `sudo` when the `rootCA` is about to be installed. This only happens the first time you run `localcert` on your machine.
