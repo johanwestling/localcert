@@ -33,6 +33,12 @@ For a browser to see a connection as "secure" we will need a `rootCA` and a `lea
 
 	> `.localcert` is the directory where the certificates will be stored by default.
 
+1. Make `localcert` executable:
+	
+	```bash
+	chmod +x localcert
+	```
+	
 1. Generate project certificates:
 	
 	```bash
