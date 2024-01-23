@@ -5,7 +5,7 @@
 
 When working with `containers` (e.g. Docker) we sometimes find ourself in need of serving a local development server over `https` on a custom domain (other than `https://localhost`). 
 
-For a browser to see a connection as "secure" we will need a `rootCA` and a `leaf` certificate to sign of the transfer between the browser and container.
+For a browser to see a connection as "secure" we will need a `rootCA` and a `leaf` certificate to sign the transfer between the browser and container properly.
 
 `localcert` strive to be a convenience script for the procedure of installing a `rootCA` and generating a `leaf` certificate for your local development domain.
 
