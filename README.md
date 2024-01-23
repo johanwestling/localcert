@@ -11,7 +11,7 @@ For a browser to see a connection as "secure" we will need a `rootCA` and a `lea
 
 <br>
 
-## Usage
+## Generating ceritificates
 
 1. Open a terminal.
 	
@@ -41,3 +41,9 @@ For a browser to see a connection as "secure" we will need a `rootCA` and a `lea
 
 > [!IMPORTANT]
 > When generating project certificates for the first time `MacOS` & `Linux` you will get prompted for account credentials due to usage of `sudo` that is required for adding the generated `rootCA` as a trusted certificate in your machine.
+
+<br>
+
+## Using ceritificates
+
+When you have [certificates generated](#generating-ceritificates) for your project you will need to include or volume them in to your project container(s) and configure your development server to use them.
