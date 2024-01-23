@@ -7,7 +7,7 @@ When working with `containers` (e.g. Docker) we sometimes find ourself in need o
 
 For a browser to see a connection as "secure" we will need a `rootCA` and a `leaf` certificate to sign of the transfer between the browser and container.
 
-`localcert` strive be a "convenience script" for the process of installing a `rootCA` in your machine and generating a `leaf` certificate for your local dev domain.
+`localcert` strive to be a convenience script for the procedure of installing a `rootCA` and generating a `leaf` certificate for your local development domain.
 
 <br>
 
