@@ -5,15 +5,15 @@
 
 When working with `containers` (e.g. Docker) we sometimes find ourself in need of serving a local development server over `https` on a custom domain (other than `https://localhost`). 
 
-For a browser to see a connection to a container secure we will need a `rootCA` and a `leaf` certificate to sign all steps of the transfer.
+For a browser to see a connection as "secure" we will need a `rootCA` and a `leaf` certificate to sign of the transfer between the browser and container.
 
-`localcert` strive to automate the process of installing `rootCA` in your machines operative system and generate a `leaf` certificate for your local dev domain.
+`localcert` strive be a "convenience script" for the process of installing a `rootCA` in your machine and generating a `leaf` certificate for your local dev domain.
 
 <br>
 
 ## Usage
 
-1. Open terminal.
+1. Open a terminal.
 	
 	> Windows users should use `WSL2` _(Windows Subsystem for Linux)_ for `localcert` script to function properly.
 
@@ -31,8 +31,10 @@ For a browser to see a connection to a container secure we will need a `rootCA` 
 
 1. Add `.localcert` to your project `.gitignore` file.
 
-1. Run `localcert` script:
+	> `.localcert` is the directory where the certificates will be stored by default.
+
+1. Generate project certificates:
 	
 	```bash
-	./localcert name-of-cert domain.dev "*.domain.dev"
+	./localcert project-name project-name.dev "*.project-name.dev"
 	```
