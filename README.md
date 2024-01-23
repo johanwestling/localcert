@@ -38,3 +38,6 @@ For a browser to see a connection as "secure" we will need a `rootCA` and a `lea
 	```bash
 	./localcert project-name project-name.dev "*.project-name.dev"
 	```
+
+> [!IMPORTANT]
+> When generating project certificates for the first time `MacOS` & `Linux` you will get prompted for account credentials due to usage of `sudo` that is required for adding the generated `rootCA` as a trusted certificate in your machine.
