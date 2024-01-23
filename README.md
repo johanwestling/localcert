@@ -31,7 +31,7 @@ For a browser to see a connection as "secure" we will need a `rootCA` and a `lea
 
 1. Add `.localcert` to your project `.gitignore` file.
 
-	> `.localcert` directory holds the `mkcert` binary and generated certificates.
+	> The `.localcert` directory holds the `mkcert` binary and generated certificates.
 
 1. Change `localcert` to be executable:
 	
