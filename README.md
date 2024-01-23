@@ -10,16 +10,26 @@ For a browser to see a connection to a container secure we will need a `rootCA` 
 
 ## Usage
 
-1. Download latest `localcert`:
+1. Open terminal.
 	
+	> Windows users should use `WSL2` _(Windows Subsystem for Linux)_ for `localcert` script to function properly.
+
+1. Change directory to your project directory:
+
 	```bash
-	curl -fsSL -o localcert https://raw.githubusercontent.com/johanwestling/localcert/HEAD/localcert)
+	cd /path/to/project/directory
 	```
 
-**Generate certificates:**
-```bash
-./localcert my-certificate-name my.domain.dev "*.my.domain.dev"
-```
+1. Download `localcert` script:
+	
+	```bash
+	curl -fsSL "https://raw.githubusercontent.com/johanwestling/localcert/main/localcert?token=GHSAT0AAAAAACJTLOJPPBDHBEQIUCXKVHDEZNPMUMQ" -o localcert
+	```
 
-> [!IMPORTANT]
-> In `MacOS` and `Linux` you will be prompted for `sudo` when the `rootCA` is about to be installed. This only happens the first time you run `localcert` on your machine.
+1. Add `.localcert` to your project `.gitignore` file.
+
+1. Run `localcert` script:
+	
+	```bash
+	./localcert name-of-cert domain.dev "*.domain.dev"
+	```
