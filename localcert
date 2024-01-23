@@ -212,7 +212,7 @@ localcert_help()
 }
 
 export LOCALCERT_BIN=${LOCALCERT_BIN:-".localcert/bin/mkcert$(localcert_bin_extension)"}
-export LOCALCERT_OUT=${LOCALCERT_OUT:-".localcert"}
+export LOCALCERT_OUT=${LOCALCERT_OUT:-".localcert/certificates"}
 
 #
 # SCRIPT
