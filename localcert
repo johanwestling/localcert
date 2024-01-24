@@ -45,8 +45,11 @@ localcert_mkdir(){
 	local directory=$1
 
 	if [ -n "$directory" ] && ! [ -d "$directory" ]; then
-		mkdir -p "$directory" > /dev/null 2>&1 \
-			&& echo "$directory"
+		mkdir -p "$directory" > /dev/null 2>&1
+		
+		if [ $? -eq 0 ]; then
+			echo "$directory"
+		fi
 	fi
 }
 
@@ -100,9 +103,11 @@ localcert_bin_install(){
 
 	# Install mkcert binary.
 	if [ -n "$binary" ]; then
-		curl -L --silent --output "$binary" "$url" > /dev/null 2>&1 \
-			&& chmod +x "$binary" > /dev/null 2>&1 \
-			&& echo "$binary"
+		bash -c "curl -L --silent --output '$binary' '$url' && chmod +x '$binary'" > /dev/null 2>&1
+
+		if [ $? -eq 0 ]; then
+			echo "$binary"
+		fi
 	fi
 }
 
@@ -123,6 +128,7 @@ localcert_root_path(){
 	if [ -n "$directory" ]; then
 		case "$platform" in
 			windows)
+				# Translate windows path to WSL2 path.
 				echo "$(wslpath "$directory")"
 			;;
 
@@ -134,42 +140,64 @@ localcert_root_path(){
 }
 
 localcert_root_installed(){
+	local platform=$(localcert_machine_platform)
+	local directory=$(localcert_root_path)
+	local certificate="$directory/rootCA.pem"
+	
+	case "$platform" in
+		mac)
+			# Check if rootCA exists in MacOS keychain.
+			security verify-cert -c "$certificate" > /dev/null 2>&1
+	
+			if [ $? -eq 0 ]; then
+				echo "$certificate"
+			fi
+		;;
 
+		*)
+			# Verify that file exists.
+			if [ -f "$certificate" ]; then
+				echo "$certificate"
+			fi
+		;;
+	esac
 }
 
 localcert_root_install(){
 	localcert_bin -install > /dev/null 2>&1
-	
+
 	if [ $? == 0 ]; then
 		local platform=$(localcert_machine_platform)
 		local directory=$(localcert_root_path)
 		local certificate="$directory/rootCA.pem"
 		
+		# Check that rootCA file exists.
 		if [ -f "$certificate" ]; then
 			case "$platform" in
 				mac)
-					# Check if rootCA is trusted.
-					security verify-cert -c "$certificate" > /dev/null 2>&1
-
-					if [ $? != 0 ]; then
-						# Elevate to add rootCA to keychain as a trusted certificate.
-						sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$certificate" && echo "$certificate"
+					if [ -z "$(localcert_root_installed)" ]; then
+						# Add rootCA to MacOS keychain.
+						sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$certificate" > /dev/null 2>&1
+					
+						if [ $? -eq 0 ]; then
+							echo "$certificate"
+						fi
 					else
-						# Already trusted.
+						# Already added to MacOS keychain.
 						echo "$certificate"
 					fi
 				;;
 
 				linux)
 					# Update ca-certificates.
-					sudo update-ca-certificates
+					sudo update-ca-certificates > /dev/null 2>&1
 					
-					if [ $? != 0 ]; then
+					if [ $? -eq 0 ]; then
 						echo "$certificate"
 					fi
 				;;
 
-				*)	
+				*)
 					echo "$certificate"
 				;;
 			esac
@@ -185,11 +213,13 @@ localcert_root_copy(){
 	# Create directory (if it does not exist).
 	localcert_mkdir "$directory" > /dev/null 2>&1
 
-	# Copy root certificate.
-	if [ -n "$from" ] && [ -n "$directory" ]; then 
-		\cp "$from/$name.pem" "$directory/$name.crt" \
-			&& \cp "$from/$name-key.pem" "$directory/$name.key" \
-			&& echo "true"
+	# Copy root certificate to directory.
+	if [ -n "$from" ] && [ -n "$directory" ]; then
+		sudo bash -c "\cp '$from/$name.pem' '$directory/$name.crt' && \cp '$from/$name-key.pem' '$directory/$name.key'" > /dev/null 2>&1
+		
+		if [ $? -eq 0 ]; then
+			echo "$directory/$name"
+		fi
 	fi
 }
 
@@ -206,8 +236,11 @@ localcert_leaf_generate(){
 	
 	# Generate certificate for domains.
 	if [ -n "$name" ] && [ -n "$domains" ]; then
-		localcert_bin --key-file "$key" --cert-file "$cert" $domains > /dev/null 2>&1 \
-			&& echo "true"
+		localcert_bin --key-file "$key" --cert-file "$cert" $domains > /dev/null 2>&1
+		
+		if [ $? -eq 0 ]; then
+			echo "true"
+		fi
 	fi
 }
 
