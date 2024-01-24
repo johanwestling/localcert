@@ -46,7 +46,10 @@ For a browser to see a connection as "secure" we will need a `rootCA` and a `lea
 	```
 
 > [!IMPORTANT]
-> When generating project certificates for the first time `MacOS` & `Linux` you will get prompted for account credentials due to usage of `sudo` that is required for adding the generated `rootCA` as a trusted certificate in your machine.
+> The `localcert` script will prompt for `sudo` (account credentials) only when needed. The steps that requires `sudo` at the moment is:
+> * Adding `rootCA` to `MacOS` keychain.
+> * Running `update-ca-certificates` on `Linux`.
+> * Copying `rootCA` from system directory.
 
 <br>
 
